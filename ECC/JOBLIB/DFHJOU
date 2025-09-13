@@ -1,0 +1,20 @@
+//DFHJOU   JOB 1,NOTIFY=&SYSUID                                         00010000
+//*                                                                     00050000
+//PRNTJNL  EXEC PGM=DFHJUP                                              00060000
+//STEPLIB  DD   DISP=SHR,DSN=DFH540.CICS.SDFHLOAD                       00070000
+//SYSPRINT DD   SYSOUT=*,DCB=RECFM=FBA                                  00080000
+//SYSUT1   DD   DSNAME=CIDES99E.CIDES99E.DFHJ07A,                       00090000
+//            DCB=BLKSIZE=32760,                                        00100000
+//            SUBSYS=(LOGR,DFHLGCNV,                                    00110000
+//            'FROM=(2022/223,09:42),TO=YOUNGEST,LOCAL')                00120000
+//SYSUT4   DD   DSNAME=SYSC.CICS.ROTDEVSK.LOG0908,                      00130000
+//            DISP=(NEW,CATLG),                                         00140000
+//            DCB=(RECFM=FBA,BLKSIZE=35000),                            00150000
+//            SPACE=(CYL,(2000,2000)),UNIT=DASD                         00160000
+//SYSIN  DD    *                                                        00170000
+END                                                                     00180000
+OPTION COPY                                                             00190000
+/*                                                                      00200000
+OPTION COPY OFFSET=29,FLDTYP=C,VALUE=Z2IG,FLDLEN=4,COND=E               00210000
+OPTION COPY OFFSET=29,FLDTYP=C,VALUE=Z2IH,FLDLEN=4,COND=E               00220000
+/*                                                                      00230000

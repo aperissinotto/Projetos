@@ -1,0 +1,74 @@
+//TRUECMP  PROC MEM=,                        * Nome do member (obrigatório)
+//              SRCLIB=,                      * Biblioteca source (obrigatório)
+//              LOADLIB=,                     * Load library (obrigatório)  
+//              MACLIB='',                    * Biblioteca macros (opcional)
+//              OBJLIB='&&TEMP.OBJ',          * Biblioteca objetos (padrão temp)
+//              LISTLIB='&&TEMP.LIST',        * Biblioteca listings (padrão temp)
+//              ASMREGN=32M,                   * Region do assembler
+//              LNKREGN=32M,                   * Region do link-edit
+//              ASMPARM='OBJECT,ADATA,XREF(SHORT),LIST', * Parâmetros HLASM
+//              LNKPARM='MAP,LIST,LET,XREF',   * Parâmetros link-edit
+//              AMODE=31,                      * Addressing mode
+//              RMODE=24                       * Residence mode
+//*
+//* ================================================================
+//* PROCEDURE: TRUECMP - Compile Task-Related User Exit (TRUE)
+//* AUTHOR:    Sistema de Compilação HLASM
+//* PURPOSE:   Compilar e link-editar TRUE em Assembler
+//* USAGE:     //step EXEC TRUECMP,MEM=nome,SRCLIB=dsn,LOADLIB=dsn
+//* ================================================================
+//*
+//* ===============================================
+//* STEP 1: ASSEMBLY (HLASM)
+//* ===============================================
+//ASM      EXEC PGM=ASMA90,REGION=&ASMREGN,
+//         PARM='&ASMPARM'
+//*
+//* Bibliotecas de Macros (SYSLIB)
+//*
+//SYSLIB   DD DISP=SHR,DSN=SYS1.MACLIB
+//         DD DISP=SHR,DSN=SYS1.MODGEN
+// AIF ('&MACLIB' EQ '').NOMAC
+//         DD DISP=SHR,DSN=&MACLIB
+//.NOMAC   ANOP
+//         DD DISP=SHR,DSN=CICSTS.CICS.SDFHMAC
+//         DD DISP=SHR,DSN=CEE.SCEEMAC
+//*
+//* Entrada e Saída do Assembler
+//*
+//SYSIN    DD DISP=SHR,DSN=&SRCLIB(&MEM)
+//SYSLIN   DD DISP=(NEW,PASS),DSN=&&OBJECT,
+//         UNIT=SYSALLDA,SPACE=(CYL,(1,1))
+//SYSPRINT DD DISP=(NEW,PASS),DSN=&LISTLIB(&MEM),
+//         SPACE=(TRK,(15,5)),UNIT=SYSALLDA
+//SYSADATA DD DISP=(NEW,PASS),DSN=&OBJLIB(&MEM),
+//         SPACE=(TRK,(5,2)),UNIT=SYSALLDA  
+//SYSUT1   DD SPACE=(4096,(20,20)),UNIT=SYSALLDA
+//SYSUT2   DD SPACE=(4096,(20,20)),UNIT=SYSALLDA
+//SYSUT3   DD SPACE=(4096,(20,20)),UNIT=SYSALLDA
+//*
+//* ===============================================
+//* STEP 2: LINK-EDIT (BINDER)
+//* ===============================================
+//LKED     EXEC PGM=IEWL,REGION=&LNKREGN,COND=(0,NE,ASM),
+//         PARM='&LNKPARM'
+//*
+//* Bibliotecas de Link-Edit (SYSLIB)
+//*
+//SYSLIB   DD DISP=SHR,DSN=CEE.SCEELKED
+//         DD DISP=SHR,DSN=CICSTS.CICS.SDFHLOAD
+//         DD DISP=SHR,DSN=SYS1.CSSLIB
+//*
+//* Saída e Utilitários do Link-Edit
+//*
+//SYSLMOD  DD DISP=SHR,DSN=&LOADLIB(&MEM)
+//SYSUT1   DD SPACE=(1024,(50,20)),UNIT=SYSALLDA
+//SYSPRINT DD SYSOUT=*
+//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&OBJECT
+//         DD *
+  MODE AMODE(&AMODE),RMODE(&RMODE)
+  ENTRY &MEM
+  NAME &MEM(R)
+/*
+// PEND
+

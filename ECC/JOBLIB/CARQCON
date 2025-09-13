@@ -1,0 +1,26 @@
+//$01CZFS  JOB 0,REGION=0M,CLASS=A,MSGCLASS=A,NOTIFY=&SYSUID
+//DEL      EXEC  PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+   DELETE                 -
+      CICS.ECC.CONEXOES   -
+      PURGE               -
+      ERASE
+      SET MAXCC = 0
+/*
+//*
+//* ------ Define the new file
+//*
+//DEFINE   EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  DEFINE CLUSTER (NAME(CICS.ECC.CONEXOES) -
+        CYL(5 5)                          -
+        RECORDSIZE(1000 1000)             -
+        INDEXED)                          -
+      DATA (                              -
+        NAME(CICS.ECC.CONEXOES.DATA)      -
+        KEYS (16 0))                      -
+      INDEX (                             -
+        NAME(CICS.ECC.CONEXOES.INDEX))
+/*

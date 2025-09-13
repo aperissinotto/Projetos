@@ -1,0 +1,57 @@
+*******************************************************************   @
+*    BOOK DO ARQUIVO DE CONEXOES TCPIP - EASYCONN CICS            *   @
+*******************************************************************   @
+*                    CONTROLE DE ALTERACOES                       *   @
+*-----------------------------------------------------------------*   @
+*  DATA    * VER * AUTOR    * DESCRICAO                           *   @
+*-----------------------------------------------------------------*   @
+* XX/12/21 * V00 * ALEXANDRE* VERSAO INICIAL                      *   @
+*          * 001 *          *                                     *   @
+*-----------------------------------------------------------------*   @
+*        WORK P/ ACESSO AO ARQUIVO                                *   @
+*-----------------------------------------------------------------*   @
+WARQNOM  DS    CL8                  * NOME DO ARQUIVO             *   @
+WARQTOK  DS    F                    * TOKEN P/ UPDATE DO ARQ.     *   @
+WARQREQ  DS    H                    * REQID P/ BROWSE DO ARQ.     *   @
+WTAMKEY  DS    H                    * TAMANHO DA CHAVE            *   @
+WTAMREG  DS    H                    * TAMANHO DO REGISTRO         *   @
+*-----------------------------------------------------------------*   @
+*        BOOK DO ARQUIVO DE CONEXOES                              *   @
+*-----------------------------------------------------------------*   @
+WLYR6ARQ DS   0FD                   * LAYOUT DO ARQUIVO           *   @
+WKEYCOMP DS   0CL16                 * CHAVE COMPLETA              *   @
+WKEYCICS DS    CL8                  * APPLID DO CICS              *   @
+WKEYPARC EQU   *-WKEYCOMP           * TAMANHO DA CHAVE            *   @
+WKEYNMCN DS    CL4                  * TRANSACAO DE CONEXAO        *   @
+WKEYTOCN DS    CL1                  * TIPO DE REGISTRO            *   @
+WFILLKEY DS    CL3                  * FILLER P/ CHAVE             *   @
+WKEYLENG EQU   *-WKEYCOMP           * TAMANHO DA CHAVE            *   @
+*-----------------------------------> REGISTRO <------------------*   @
+WARQREGS DS   0FD                                                 *   @
+*-----------------------------------> DADOS DA CONEXAO <----------*   @
+WARQDESC DS    CL32                 * DESCRICAO DA CONEXAO        *   @
+WARQENIP DS    A                    * ENDERECO IP                 *   @
+WARQPORT DS    H                    * PORT                        *   @
+WARQBCC1 DS    X                    * BIT DE CONF. DA CONEXAO     *   @
+WARQCSRV EQU   X'80'                * LIG. SERVER/ DESL. CLIENT   *   @
+WARQCPER EQU   X'40'                * LIG. PERSIS/ DESL. N.PERSIS.*   @
+         DS    XL1                  * FILLER                      *   @
+*-----------------------------------> TIMEOUTS DA CONEXAO <-------*   @
+WARQTMSL DS    F                    * TIMEOUT DO SELECT           *   @
+WARQTMGV DS    F                    * TIMEOUT DO GIVESOCKET       *   @
+WARQTMCN DS    F                    * TIMEOUT DO CONNECT          *   @
+WARQTMRD DS    F                    * TIMEOUT DO READ             *   @
+WARQTMWR DS    F                    * TIMEOUT DO WRITE            *   @
+*-----------------------------------> DADOS DA MENSAGEM <---------*   @
+WARQTAMT DS    F                    * TAMANHO DO CAMPO DE TAMANHO *   @
+WARQTAMM DS    F                    * TAMANHO MAXIMO DA MENSAGEM  *   @
+WARQBCM1 DS    X                    * BIT DE CONF. DA MENSAGEM    *   @
+WARQTAMF EQU   X'80'                * LIG. ASCII / DESL. EBCDIC   *   @
+WARQMSGF EQU   X'40'                * LIG. ASCII / DESL. EBCDIC   *   @
+         DS    XL3                  * FILLER                      *   @
+*-----------------------------------> POINTERS <------------------*   @
+WARQPTBD DS    A                    * POINTER P/ TAB.DADOS. CON.  *   @
+*-----------------------------------> FILLERS <-------------------*   @
+WLYR6TRG EQU   *-WLYR6ARQ           * TAMANHO DO REGISTRO         *   @
+WFILLTOT DS    CL(1000-WLYR6TRG)    * FILLER P/ FUTURO            *   @
+WLYR6TAQ EQU   *-WLYR6ARQ           * TAMANHO TOTAL DO ARQUIVO    *   @

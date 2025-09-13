@@ -1,0 +1,44 @@
+//CLCC63CC PROC  SOURCE=,LOAD=                                          00010000
+//*                                                                     00020000
+//COBOL    EXEC PGM=IGYCRCTL,REGION=0M,PARM='C,FSRT,X,MAP,LIST,LANG(UE),00030000
+//             ,AWO,WD(CICS),CICS("COBOL3,APOST,NOOPT,DEBUG,NOSEQ,SP")' 00040000
+//STEPLIB  DD   DISP=SHR,DSN=IGY630.SIGYCOMP                            00050000
+//         DD   DISP=SHR,DSN=DFH540.CICS.SDFHLOAD                       00060000
+//         DD   DISP=SHR,DSN=CEE.SCEERUN                                00070000
+//SYSPRINT DD   SYSOUT=*                                                00090000
+//SYSLIB   DD   DISP=SHR,DSN=SYSC.CICS.ECCDEVSK.COPYBOOK                00100001
+//         DD   DISP=SHR,DSN=DFH540.CICS.SDFHCOB                        00130000
+//         DD   DISP=SHR,DSN=DFH540.CICS.SDFHMAC                        00140000
+//         DD   DISP=SHR,DSN=DFH540.CICS.SDFHSAMP                       00150000
+//SYSLIN   DD   DSNAME=&&LOADSET,UNIT=SYSALLDA,                         00160000
+//         DISP=(MOD,PASS),SPACE=(CYL,(1,1)),VOL=(,,,1)                 00170000
+//SYSUT1   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00180000
+//SYSUT2   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00190000
+//SYSUT3   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00200000
+//SYSUT4   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00210000
+//SYSUT5   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00220000
+//SYSUT6   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00230000
+//SYSUT7   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00240000
+//SYSUT8   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00250000
+//SYSUT9   DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00260000
+//SYSUT10  DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00270000
+//SYSUT11  DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00280000
+//SYSUT12  DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00290000
+//SYSUT13  DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00300000
+//SYSUT14  DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00310000
+//SYSUT15  DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00320000
+//SYSMDECK DD   UNIT=SYSALLDA,SPACE=(CYL,(1,1)),VOL=(,,,1)              00330000
+//SYSIN    DD   DISP=SHR,DSN=SYSC.CICS.ECCDEVSK.SOURCE(&SOURCE)         00340001
+//*                                                                     00350000
+//LKED     EXEC PGM=IEWBLINK,REGION=0M,PARM='RENT,LIST,MAP,XREF,AMODE(3,00360000
+//             1),RMODE(ANY)'                                           00370000
+//SYSLIB   DD   DISP=SHR,DSN=CEE.SCEELKEX                               00380000
+//         DD   DISP=SHR,DSN=CEE.SCEELKED                               00390000
+//         DD   DISP=SHR,DSN=DFH540.CICS.SDFHLOAD                       00400000
+//         DD   DISP=SHR,DSN=SYSC.CICS.ECCDEVSK.LOADLIB                 00410001
+//SYSPRINT DD   SYSOUT=*                                                00420000
+//SYSLIN   DD   DSNAME=&&LOADSET,DISP=(OLD,DELETE)                      00430000
+//         DD   DDNAME=SYSIN                                            00440000
+//SYSLMOD  DD   DSNAME=SYSC.CICS.ECCDEVSK.LOADLIB(&LOAD),               00450001
+//         SPACE=(CYL,(1,1,1)),                                         00460000
+//         UNIT=SYSALLDA,DISP=(MOD,PASS),DSNTYPE=LIBRARY                00470000

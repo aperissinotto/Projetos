@@ -1,0 +1,92 @@
+*******************************************************************   @
+*            BOOK DAS CONEXOES - EASYCONN CICS SOCKETS            *   @
+*******************************************************************   @
+*                    CONTROLE DE ALTERACOES                       *   @
+*-----------------------------------------------------------------*   @
+*  DATA    * VER * AUTOR    * DESCRICAO                           *   @
+*-----------------------------------------------------------------*   @
+* XX/XX/XX * V00 * ALEXANDRE* VERSAO INICIAL                      *   @
+*          * 001 *          *                                     *   @
+*-----------------------------------------------------------------*   @
+*            WORK PARA LISTENERS                                  *   @
+*-----------------------------------------------------------------*   @
+WDSECLST DSECT                      * LAYOUT DA TABELA LISTENERS  *   @
+WDHDRLST DS    CL8                  * HEADER LISTENER             *   @
+**----------------------------------> DADOS DA TRANSACAO          *   @
+WLSTTTCN DS    FD                   * TOTAL DE CONEXOES           *   @
+WLSTATCN DS    FD                   * NUMERO DE CONEXOES ATUAIS   *   @
+*                                                                 *   @
+WLSTTCBL DS    F                    * ENDERECO DESTA TCB LISTENER *   @
+WLSTTKID DS    F                    * NUMERO DA TASKID DESTE LIS. *   @
+WLSTFSRV DS    F                    * ENDERECO DO PRIMEIRO SERVER *   @
+WLSTMSG  DS    CL66                 * AREA PARA GRAVAR MENSAGENS  *   @
+WLSTTMSG DS    H                    * TAMANHO DA MENSAGEM         *   @
+WLSTTDWR DS    D                    * DOUBLE DE WORK              *   @
+WLSTWORK DS    XL648                * AREA DE WORK LISTENER       *   @
+*                                                                 *   @
+WFOOLST  DS    CL8                  * FOOTER LISTENER             *   @
+WLYR6TTL EQU   *-WLYR6LST           * TAMANHO TOTAL DE CADA CONE. *   @
+*-----------------------------------------------------------------*   @
+*            WORK PARA CLIENTS                                   *   @
+*-----------------------------------------------------------------*   @
+WLYR6SRV DSECT                      * LAYOUT TAB/ DE SERVIDORES   *   @
+WHDRSRV  DS    CL8                  * HEADER SERVIDOR             *   @
+*                                                                 *   @
+WSRVFUNC DS    CL4                  * FUNCAO TCP-IP CHAMADA       *   @
+WSRVSTAT DS    X                    * FLAGS DESTA ENTRADA         *   @
+WSRVEMUS EQU   X'80'                * LIGADO - EM USO             *   @
+WSRVEMDS EQU   X'40'                * LIGADO - DESCONECTADO       *   @
+*                                   * DESLIGADO - LIVRE           *   @
+WSRVIPRM DS    AL4                  * ENDERECO IP REMOTO          *   @
+WSRVPTRM DS    H                    * PORT REMOTO                 *   @
+*-----------------------------------> DADOS DO SOCKET             *   @
+WSRVSKAP DS    F                    * SOCKET SERVIDOR/APPEND      *   @
+WSRVSKTK DS    F                    * SOCKET SERVIDOR/TAKESOCKET  *   @
+WSRVTKGS DS    F                    * TOKEN SERVIDOR/GIVESOCKET   *   @
+WSRVEID  DS    XL(CID#LENGTH)       * CLIENTID DO GIVESOCKET      *   @
+*-----------------------------------> DADOS DO CONCENTRADOR       *   @
+WSRVSERZ DS    F                    * FLAG P/ SERIALIZACAO        *   @
+WCONECBL DS    F                    * LISTA DE ECB                *   @
+WSELECBR DS    F                    * ECB DE SELECT RECEIVE       *   @
+WSELECBS DS    F                    * ECB DE SELECT SEND          *   @
+*-----------------------------------> DADOS DO SENDER             *   @
+WSNDTCBC DS    F                    * ENDERECO DESTA TCB SENDER   *   @
+WSNDTKID DS    F                    * NUMERO DA TASKID DESTE SND. *   @
+WSNDTRID DS    CL4                  * TRANSID DESTE SENDER        *   @
+*-----------------------------------> DADOS DA MENSAGEM           *   @
+WMSGTAMT DS    H                    * TAMANHO DO CAMPO DE TAMANHO *   @
+WMSGTAMM DS    H                    * TAMANHO MAX. DA MENSAGEM    *   @
+WFORMATO DS    X                    * FORMATO EM ASCII/EBCDIC     *   @
+WFTAMMSG EQU   X'80'                * LIG. ASCII / DESL. EBCDIC   *   @
+WFFORMSG EQU   X'40'                * LIG. ASCII / DESL. EBCDIC   *   @
+*-----------------------------------> BUFFER DE RECEIVER          *   @
+WAPPBFRA DS    F                    * ADDRESS RECEIVER BUFFER     *   @
+WAPPBFRL DS    F                    * LENGTH RECEIVER BUFFER      *   @
+*-----------------------------------> BUFFER DE SENDER            *   @
+WSRVSBFS DS    F                    * FLAG P/ SERIALIZACAO        *   @
+WAPPBFSA DS    F                    * ADDRESS SENDER BUFFER       *   @
+WAPPBFSL DS    F                    * LENGTH SENDER BUFFER        *   @
+*-----------------------------------> AREAS DE WORK               *   @
+WCONMSG  DS    CL66                 * AREA PARA GRAVAR MENSAGENS  *   @
+WCONTMSG DS    H                    * TAMANHO DA MENSAGEM         *   @
+WCONTDWR DS    D                    * DOUBLE DE WORK              *   @
+WSRVWORK DS    XL648                * AREA DE WORK SERVER         *   @
+*-----------------------------------> WORK PARA ESTATISTICAS      *   @
+WSRVFACT DS    FD                   * PRIMEIRA ATIVIDADE          *   @
+WSRVLACT DS    FD                   * ULTIMA ATIVIDADE            *   @
+WSRVQRMG DS    FD                   * QUANTIDADE DE MSG RECEBIDAS *   @
+WSRVQRBT DS    FD                   * QUANTIDADE DE BYTES RECEBI. *   @
+WSRVQSMG DS    FD                   * QUANTIDADE DE MSG ENVIADAS  *   @
+WSRVQSBT DS    FD                   * QUANTIDADE DE BYTES ENVIAD. *   @
+*-----------------------------------> WORK PARA LINK SRV<->LST    *   @
+WSRVTCBC DS    F                    * ENDERECO DESTA TCB SERVIDOR *   @
+WSRVTKID DS    F                    * NUMERO DA TASKID DESTE SRV. *   @
+WSRVTRID DS    CL4                  * TRANSID DESTE SERVIDOR      *   @
+WSRVTCLE EQU   *-WSRVSTAT           * TAMANHO DA AREA PARA LIMPAR *   @
+*-----------------------------------> WORK PARA LINK SRV<->SRV    *   @
+WSRVASRV DS    F                    * ENDERECO DO SERVIDOR ANT.   *   @
+WSRVPSRV DS    F                    * ENDERECO DO PROX. SERVIDOR  *   @
+WSRVTLST DS    F                    * ENDERECO DA TAB. LISTENER   *   @
+*-----------------------------------> FIM DA TABELA               *   @
+WFOOSRV  DS    CL8                  * FOOTER SERVIDOR             *   @
+WLYR6TTS EQU   *-WLYR6SRV           * TAMANHO TOTAL DE CADA CONE. *   @

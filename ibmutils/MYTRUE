@@ -1,0 +1,23 @@
+MYTRUE   CSECT
+MYTRUE   AMODE 31
+MYTRUE   RMODE 24
+*
+* Task-Related User Exit (TRUE) 
+*
+         USING *,R15               Base register
+         SAVE  (14,12),,MYTRUE-&SYSDATE-&SYSTIME
+         LR    R12,R15             Load base
+         USING MYTRUE,R12          Establish base
+*
+* Parâmetros de entrada conforme interface TRUE
+*
+         LM    R2,R11,0(R1)        Load parameter addresses
+*
+* Lógica da TRUE aqui
+*
+EXIT     EQU   *
+         RETURN (14,12),RC=0
+*
+         LTORG
+         END   MYTRUE
+

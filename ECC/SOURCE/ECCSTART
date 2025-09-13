@@ -1,0 +1,383 @@
+*******************************************************************   @
+*                                                                 *   @
+* NOME DO MODULO..........: ECCSTART.                             *   @
+* TITULO..................: MODULO DE START DO PRODUTO EASYCONN.  *   @
+*                                                                 *   @
+* TIPO DE MODULO..........: PROGRAMA ASSEMBLER CICS.              *   @
+*                                                                 *   @
+* DESCRICAO RESUMIDA......: FAZ OS STARTS INICIAIS DO PRODUTO     *   @
+*                                                                 *   @
+* FUNCIONALIDADES.........:                                       *   @
+* - FAZER O START DO CONTROLER SERVERS                            *   @
+* - FAZER O START DO CONTROLER CLIENTS                            *   @
+*                                                                 *   @
+* ARQUIVOS ACESSADOS......:                                       *   @
+* - NENHUM                                                        *   @
+*                                                                 *   @
+* MODULOS CHAMADORES......:                                       *   @
+* - CICS/PLT                                                      *   @
+*                                                                 *   @
+* MODULOS CHAMADOS........:                                       *   @
+* - NENHUM                                                        *   @
+*                                                                 *   @
+* MACROS                                                          *   @
+* - NENHUMA                                                       *   @
+*                                                                 *   @
+* DSECTS DE MAPEAMENTO:                                           *   @
+* - NENHUMA                                                       *   @
+*                                                                 *   @
+* DESCRICAO DE USO DOS REGISTRADORES:                             *   @
+* - R1 : WORK                                                     *   @
+* - R2 : WORK                                                     *   @
+* - R3 : WORK                                                     *   @
+* - R4 : WORK                                                     *   @
+* - R5 : WORK                                                     *   @
+* - R6 : WORK                                                     *   @
+* - R7 : WORK                                                     *   @
+* - R8 : WORK                                                     *   @
+* - R9 : WORK                                                     *   @
+* - R10: WORK                                                     *   @
+* - R11: BASE DO EIB BLOCK                                        *   @
+* - R12: BASE DO PROGRAMA                                         *   @
+* - R13: BASE DA WORKING                                          *   @
+* - R14: WORK E RETORNO AO CICS                                   *   @
+* - R15: WORK                                                     *   @
+*                                                                 *   @
+* PARAMETROS DE ENTRADA:                                          *   @
+*  - NENHUM.                                                      *   @
+*                                                                 *   @
+* PARAMETROS DE SAIDA:                                            *   @
+*  - NENHUM.                                                      *   @
+*                                                                 *   @
+*******************************************************************   @
+*                    CONTROLE DE ALTERACOES                       *   @
+*-----------------------------------------------------------------*   @
+*  DATA    * VER * AUTOR    * DESCRICAO                           *   @
+*-----------------------------------------------------------------*   @
+* XX/XX/23 * XXX * ALEXANDRE* VERSAO INICIAL                      *   @
+*          * 001 *          *                                     *   @
+*-----------------------------------------------------------------*   @
+         IEABRCX DEFINE                                           *   @
+ECCSTART DFHEIENT CODEREG=(R12),                                       X
+               DATAREG=(R13),                                          X
+               EIBREG=(R11),                                           X
+               STATIC=ECCSTAT                                     *   @
+ECCSTART AMODE 31                                                 *   @
+ECCSTART RMODE ANY                                                *   @
+*-----------------------------------------------------------------*   @
+*        LIGA TRATAMENTO DE ABEND                                 *   @
+*-----------------------------------------------------------------*   @
+         EXEC  CICS HANDLE                                             X
+               ABEND LABEL(TRTABEND)
+*-----------------------------------------------------------------*   @
+*        EMITE MENSAGEM DE INICIALIZACAO DO PRODUTO               *   @
+*-----------------------------------------------------------------*   @
+         JAS   R9,DMSG001I          * CHAMA ROTINA MENSAGEM       *   @
+*-----------------------------------------------------------------*   @
+*        OBTEM A APPLID PARA ENVIAR AOS CONTROLERS                *   @
+*-----------------------------------------------------------------*   @
+         EXEC  CICS ASSIGN                                             X
+               APPLID(WAPPLID)                                         X
+               RESP(WRESP)                                             X
+               RESP2(WRESP2)
+*                                                                 *   @
+         MVC   WAPI,=CL16'ASSIGN-000000001'                       *   @
+         CLC   WRESP,DFHRESP(NORMAL) * ASSIGN OK?                 *   @
+         JNE   DMSG001E             * NAO, EMITI MENSAGEM ERRO    *   @
+*-----------------------------------------------------------------*   @
+*        START DO LISTENER CONTROLER                              *   @
+*-----------------------------------------------------------------*   @
+         MVHHI WHALF,L'WAPPLID    * TAMANHO DA CHAVE              *   @
+*                                                                 *   @
+         EXEC  CICS START                                              X
+               TRANSID(LTLSTCON)                                       X
+               FROM(WAPPLID)                                           X
+               LENGTH(WHALF)                                           X
+               RESP(WRESP)                                             X
+               RESP2(WRESP2)
+*                                                                 *   @
+         MVC   WAPI,=CL16'START-0000000001'                       *   @
+         CLC   WRESP,DFHRESP(NORMAL) * START OK?                  *   @
+         JNE   DMSG001E             * NAO, EMITE MENSAGEM ERRO    *   @
+         JAS   R9,DMSG002I          * SIM, EMITE MENSAGEM INFOR.  *   @
+*-----------------------------------------------------------------*   @
+*        START DO CLIENT CONTROLER                                *   @
+*-----------------------------------------------------------------*   @
+         MVHHI WHALF,L'WAPPLID    * TAMANHO DA CHAVE              *   @
+*                                                                 *   @
+         EXEC  CICS START                                              X
+               TRANSID(LTCLICON)                                       X
+               FROM(WAPPLID)                                           X
+               LENGTH(WHALF)                                           X
+               RESP(WRESP)                                             X
+               RESP2(WRESP2)
+*                                                                 *   @
+         MVC   WAPI,=CL16'START-0000000002'                       *   @
+         CLC   WRESP,DFHRESP(NORMAL) * START OK?                  *   @
+         JNE   DMSG001E             * NAO, EMITE MENSAGEM ERRO    *   @
+         JAS   R9,DMSG003I          * SIM, EMITE MENSAGEM INFOR.  *   @
+*-----------------------------------------------------------------*   @
+*        FIM DO PROGRAMA                                          *   @
+*-----------------------------------------------------------------*   @
+ENDPGM01 DS   0H                                                  *   @
+         EXEC  CICS SEND CONTROL                                       X
+               ERASE
+         EXEC CICS SEND TEXT FROM(LCOK)
+*                                                                 *   @
+         XR    R15,R15              * RC=0                        *   @
+         DFHEIRET RCREG=R15         * RETORNA P/ CICS             *   @
+*-----------------------------------------------------------------*   @
+*        TRATAMENTO DE ABEND                                      *   @
+*-----------------------------------------------------------------*   @
+TRTABEND DS   0H                                                  *   @
+         EXEC  CICS ASSIGN                                             X
+               ABCODE(WABEND)                                          X
+               ABOFFSET(WABOFSET)                                      X
+               ABPROGRAM(WABPGM)                                       X
+               NOHANDLE
+*                                                                 *   @
+         J     DMSG002E             * EMITE MENSAGEM DE ERRO      *   @
+*-----------------------------------------------------------------*   @
+*        ROTINAS DE EMISSAO DE MENSAGENS                          *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGENS INFORMATIVAS                                   *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGEM DE INICIALIZACAO DO PRODUTO                     *   @
+*-----------------------------------------------------------------*   @
+DMSG001I DS   0H                                                  *   @
+         XC    WMSG,WMSG            * LIMPA MENSAGEM              *   @
+         MVC   WMSG(L'MSG001I),MSG001I * MOVE MENSAGEM            *   @
+         MVHHI WHALF,L'WMSG         * TAMANHO DA MENSAGEM         *   @
+         MVC   M001ITR,EIBTRNID     * MOVE TRANSACAO              *   @
+*                                                                 *   @
+         EXEC  CICS                                                    X
+               WRITEQ TD                                               X
+               QUEUE(LTDQLOG)                                          X
+               FROM(WMSG)                                              X
+               LENGTH(WHALF)                                           X
+               NOHANDLE
+*                                                                 *   @
+         BR    R9                   * RETORNA AO CHAMADOR         *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGEM DE START DO CONTROLER LISTENER                  *   @
+*-----------------------------------------------------------------*   @
+DMSG002I DS   0H                                                  *   @
+         XC    WMSG,WMSG            * LIMPA MENSAGEM              *   @
+         MVC   WMSG(L'MSG002I),MSG002I * MOVE MENSAGEM            *   @
+         MVHHI WHALF,L'WMSG         * TAMANHO DA MENSAGEM         *   @
+         MVC   M002ITR,EIBTRNID     * MOVE TRANSACAO              *   @
+*                                                                 *   @
+         EXEC  CICS ASKTIME                                            X
+               ABSTIME(WABTIME)
+*                                                                 *   @
+         EXEC  CICS FORMATTIME ABSTIME(WABTIME)                        X
+               TIME(M002IHR) TIMESEP(':')
+*                                                                 *   @
+         EXEC  CICS                                                    X
+               WRITEQ TD                                               X
+               QUEUE(LTDQLOG)                                          X
+               FROM(WMSG)                                              X
+               LENGTH(WHALF)                                           X
+               NOHANDLE
+*                                                                 *   @
+         BR    R9                   * RETORNA AO CHAMADOR         *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGEM DE START DO CONTROLER CLIENT                    *   @
+*-----------------------------------------------------------------*   @
+DMSG003I DS   0H                                                  *   @
+         XC    WMSG,WMSG            * LIMPA MENSAGEM              *   @
+         MVC   WMSG(L'MSG003I),MSG003I * MOVE MENSAGEM            *   @
+         MVHHI WHALF,L'WMSG         * TAMANHO DA MENSAGEM         *   @
+         MVC   M003ITR,EIBTRNID     * MOVE TRANSACAO              *   @
+*                                                                 *   @
+         EXEC  CICS ASKTIME                                            X
+               ABSTIME(WABTIME)
+*                                                                 *   @
+         EXEC  CICS FORMATTIME ABSTIME(WABTIME)                        X
+               TIME(M003IHR) TIMESEP(':')
+*                                                                 *   @
+         EXEC  CICS                                                    X
+               WRITEQ TD                                               X
+               QUEUE(LTDQLOG)                                          X
+               FROM(WMSG)                                              X
+               LENGTH(WHALF)                                           X
+               NOHANDLE
+*                                                                 *   @
+         BR    R9                   * RETORNA AO CHAMADOR         *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGENS DE ERRO                                        *   @
+*-----------------------------------------------------------------*   @
+*        ERRO GENERICO NA CHAMADA DA API                          *   @
+*-----------------------------------------------------------------*   @
+DMSG001E DS   0H                                                  *   @
+         XC    WMSG,WMSG            * LIMPA MENSAGEM              *   @
+         MVC   WMSG(L'MSG001E),MSG001E * MOVE MENSAGEM            *   @
+         MVC   M001ETR,EIBTRNID     * MOVE TRANSACAO              *   @
+         MVC   M001EAP,WAPI         * MOVE API CHAMADA            *   @
+*                                                                 *   @
+         L     R5,WRESP             * MOV. RC                     *   @
+         CVD   R5,WDOUBLE           * CONVERTE P/ DECIMAL         *   @
+         UNPK  M001ERC(8),WDOUBLE+4(4) * DESCOMPACTA              *   @
+         OI    M001ERC+7,X'F0'      * LIGA ZONA                   *   @
+*                                                                 *   @
+         L     R5,WRESP2            * MOV. RC                     *   @
+         CVD   R5,WDOUBLE           * CONVERTE P/ DECIMAL         *   @
+         UNPK  M001ERS(8),WDOUBLE+4(4) * DESCOMPACTA              *   @
+         OI    M001ERS+7,X'F0'      * LIGA ZONA                   *   @
+*                                                                 *   @
+         MVHHI WHALF,L'WMSG         * TAMANHO DA MENSAGEM         *   @
+*                                                                 *   @
+         EXEC  CICS                                                    X
+               WRITEQ TD                                               X
+               QUEUE(LTDQLOG)                                          X
+               FROM(WMSG)                                              X
+               LENGTH(WHALF)                                           X
+               NOHANDLE
+*                                                                 *   @
+         J     ENDPGM01                                           *   @
+*-----------------------------------------------------------------*   @
+*        ERRO ABEND NO MODULO                                     *   @
+*-----------------------------------------------------------------*   @
+DMSG002E DS   0H                                                  *   @
+         XC    WMSG,WMSG            * LIMPA MENSAGEM              *   @
+         MVC   WMSG(L'MSG002E),MSG002E * MOVE MENSAGEM            *   @
+         MVC   M002ETR,EIBTRNID     * MOVE TRANSACAO              *   @
+*                                                                 *   @
+         MVC   M002EAB,WABEND       * MOVE ABEND OCORRIDO         *   @
+         MVC   M002EPG,WABPGM       * MOVE PROGRAMA ENVOLVIDO     *   @
+*                                                                 *   @
+         ASI   WABOFSET,-40         * SUBTRAI HEADER CICS         *   @
+         MVC   WFULL,WABOFSET       * MOVE OFFSET                 *   @
+         UNPK  WDOUBLE(9),WFULL(5)  * DESCOMPACTA                 *   @
+         NC    WDOUBLE,LTR1         * AND CHAR                    *   @
+         TR    WDOUBLE,LTR2         * TRANSLATE                   *   @
+         MVC   M002EOF,WDOUBLE      * MOVE OFFSET                 *   @
+*                                                                 *   @
+         MVHHI WHALF,L'WMSG         * TAMANHO DA MENSAGEM         *   @
+*                                                                 *   @
+         EXEC  CICS                                                    X
+               WRITEQ TD                                               X
+               QUEUE(LTDQLOG)                                          X
+               FROM(WMSG)                                              X
+               LENGTH(WHALF)                                           X
+               NOHANDLE
+*                                                                 *   @
+         J     ENDPGM01                                           *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE LITERAIS                                         *   @
+*-----------------------------------------------------------------*   @
+ECCSTAT  DS   0D                                                  *   @
+         LTORG                                                    *   @
+*                                                                 *   @
+LCOK     DC    C'OK'                                              *   @
+LTLSTCON DC    C'ECCS'                                            *   @
+LTCLICON DC    C'ECCC'                                            *   @
+LTDQLOG  DC    C'ECLG'                                            *   @
+LTR1     DC    X'0F0F0F0F0F0F0F0F'                                *   @
+LTR2     DC    C'0123456789ABCDEF'                                *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGENS INFORMATIVAS                                   *   @
+*-----------------------------------------------------------------*   @
+*                         1         2         3         4         5
+*                123456789012345678901234567890123456789012345678901234
+MSG001I  DC    C'XXXX.001I-EASYCONN CICS SOCKETS ESTA INICIANDO'
+*              567890123456789012
+*                   6         7
+M001ITR  EQU   WMSG+0,4                                           *   @
+*                                                                 *   @
+*                         1         2         3         4         5
+*                123456789012345678901234567890123456789012345678901234
+MSG002I  DC    C'XXXX.002I-XXXX CONTROLADOR LISTENER INICIADO AS XX:XX:-
+               XX'
+*              567890123456789012
+*                   6         7
+M002ITR  EQU   WMSG+0,4                                           *   @
+M002ICS  EQU   WMSG+10,4                                          *   @
+M002IHR  EQU   WMSG+48,8                                          *   @
+*                                                                 *   @
+*                         1         2         3         4         5
+*                123456789012345678901234567890123456789012345678901234
+MSG003I  DC    C'XXXX.003I-XXXX CONTROLADOR CLIENT INICIADO AS XX:XX:XX-
+               '
+*              567890123456789012
+*                   6         7
+M003ITR  EQU   WMSG+0,4                                           *   @
+M003ICC  EQU   WMSG+10,4                                          *   @
+M003IHR  EQU   WMSG+46,8                                          *   @
+*                                                                 *   @
+*-----------------------------------------------------------------*   @
+*        MENSAGENS DE ERRO                                        *   @
+*-----------------------------------------------------------------*   @
+*                         1         2         3         4         5
+*                123456789012345678901234567890123456789012345678901234
+MSG001E  DC    C'XXXX.001E-ERRO NA API=XXXXXXXXXXXXXXXX RESP=XXXXXXXX R-
+               ESP2=XXXXXXXX'
+*              567890123456789012
+*                   6         7
+M001ETR  EQU   WMSG+0,4                                           *   @
+M001EAP  EQU   WMSG+22,16                                         *   @
+M001ERC  EQU   WMSG+44,8                                          *   @
+M001ERS  EQU   WMSG+59,8                                          *   @
+*                                                                 *   @
+*                         1         2         3         4         5
+*                123456789012345678901234567890123456789012345678901234
+MSG002E  DC    C'XXXX.002E-ABEND=XXXX NO PGM=XXXXXXXX OFFSET=XXXXXXXX'
+*              567890123456789012
+*                   6         7
+M002ETR  EQU   WMSG+0,4                                           *   @
+M002EAB  EQU   WMSG+20,4                                          *   @
+M002EPG  EQU   WMSG+32,8                                          *   @
+M002EOF  EQU   WMSG+48,8                                          *   @
+*                                                                 *   @
+*-----------------------------------------------------------------*   @
+*        LITERAIS DE TESTES                                       *   @
+*-----------------------------------------------------------------*   @
+         COPY  DFHAID                                             *   @
+*-----------------------------------------------------------------*   @
+*        DSECT'S                                                  *   @
+*-----------------------------------------------------------------*   @
+*        AREA DE WORKING                                          *   @
+*-----------------------------------------------------------------*   @
+DFHEISTG DSECT                                                    *   @
+         ORG   DFHEIUSR                                           *   @
+*                                                                 *   @
+WAPPLID  DS    CL8                  * CHAVE CICS                  *   @
+WAPI     DS    CL16                 * WORK P/ API - MSG ERRO      *   @
+WMSG     DS    CL72                 * WORK P/ MENSAGEM            *   @
+WABTIME  DS    PL15                 * DATA/HORA                   *   @
+WABEND   DS    CL4                  * ABEND OCORRIDO              *   @
+WABOFSET DS    F                    * OFFSET DO ABEND             *   @
+WABPGM   DS    CL8                  * PROGRAMA ABENDADO           *   @
+*                                                                 *   @
+WRESP    DS    F                    * RESPONSE PARA CICS COMMANDS *   @
+WRESP2   DS    F                    * RESPONSE PARA CICS COMMANDS *   @
+*                                                                 *   @
+WFULL    DS    F                    * FULL DE WORK                *   @
+         DS    X                                                  *   @
+*                                                                 *   @
+WDOUBLE  DS    FD                   * DOUBLE DE WORK              *   @
+         DS    X                                                  *   @
+*                                                                 *   @
+WHALF    DS    H                    * HALF DE WORK                *   @
+         DS    X                                                  *   @
+WLENWRK  EQU   *-DFHEISTG           * TAMANHO TOTAL DA AREA       *   @
+*-----------------------------------------------------------------*   @
+*        EQUATES DE REGISTRADORES                                 *   @
+*-----------------------------------------------------------------*   @
+R0       EQU   0                                                  *   @
+R1       EQU   1                                                  *   @
+R2       EQU   2                                                  *   @
+R3       EQU   3                                                  *   @
+R4       EQU   4                                                  *   @
+R5       EQU   5                                                  *   @
+R6       EQU   6                                                  *   @
+R7       EQU   7                                                  *   @
+R8       EQU   8                                                  *   @
+R9       EQU   9                                                  *   @
+R10      EQU   10                                                 *   @
+R11      EQU   11                                                 *   @
+R12      EQU   12                                                 *   @
+R13      EQU   13                                                 *   @
+R14      EQU   14                                                 *   @
+R15      EQU   15                                                 *   @
+         END   ECCSTART                                           *   @

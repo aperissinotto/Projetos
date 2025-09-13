@@ -1,0 +1,22 @@
+*******************************************************************   @
+*           BOOK DO ARQUIVO DE LOG - ROUTE SIX SOCKET             *   @
+*******************************************************************   @
+*                    CONTROLE DE ALTERACOES                       *   @
+*-----------------------------------------------------------------*   @
+*  DATA    * VER * AUTOR    * DESCRICAO                           *   @
+*-----------------------------------------------------------------*   @
+* XX/12/21 * V00 * ALEXANDRE* VERSAO INICIAL                      *   @
+*          * 001 *          *                                     *   @
+*-----------------------------------------------------------------*   @
+WLYR6DLG DS   0F                    * LAYOUT DA LOG DO TCP-IP     *   @
+WKEYTOD  DS    FD                   * CHAVE - (TOD DO EVENTO)     *   @
+WAPPLCC  DS    CL8                  * APPLID DO CICS              *   @
+WCONNAM  DS    CL8                  * NOME DA CONEXAO             *   @
+WTKSOCK  DS    F                    * TOKEN DO SOCKET ASSOCIADO   *   @
+WTKTRAN  DS    FD                   * TOKEN DA TRANSACAO ASSOCIADA*   @
+WEVENTO  DS    CL8                  * DESCRICAO DO EVENTO         *   @
+WRCEVEN  DS    F                    * RETURN CODE DO EVENTO       *   @
+WRSEVEN  DS    F                    * REASON CODE DO EVENTO       *   @
+WTAMMSG  DS    F                    * TAMANHO DA MENSAGEM         *   @
+WMENSAG  EQU   *                    * MENSAGEM DO EVENTO          *   @
+WLYR6TLG EQU   *-WLYR6DLG           * TAMANHO DO HEADER FIXO      *   @
