@@ -1,0 +1,55 @@
+TESTSON  RSECT ,                                                  @   @
+TESTSON  AMODE 31                                                 @   @
+TESTSON  RMODE ANY                                                @   @
+         SYSSTATE ARCHLVL=6                                       @   @
+         IEABRCX DEFINE                                           @   @
+******************************************************************@   @
+         BAKR  R14,0                                              @   @
+         WTO   'HELLO WORLD!'                                     @   @
+         LARL  R11,TSTSONL                                        @   @
+         USING TSTSONL,R11                                        @   @
+         PR                                                       @   @
+******************************************************************@   @
+*        LITERALS                                                 @   @
+******************************************************************@   @
+TSTSONL  DS   0D                                                  @   @
+         LTORG ,                                                  @   @
+LWTO     WTO   TEXT=,MF=L                                         @   @
+LLWTO    EQU   *-LWTO                                             @   @
+******************************************************************@   @
+*        EQU GENERAL REGISTERS                                    @   @
+******************************************************************@   @
+R0       EQU   0                                                  @   @
+R1       EQU   1                                                  @   @
+R2       EQU   2                                                  @   @
+R3       EQU   3                                                  @   @
+R4       EQU   4                                                  @   @
+R5       EQU   5                                                  @   @
+R6       EQU   6                                                  @   @
+R7       EQU   7                                                  @   @
+R8       EQU   8                                                  @   @
+R9       EQU   9                                                  @   @
+R10      EQU   10                                                 @   @
+R11      EQU   11                                                 @   @
+R12      EQU   12                                                 @   @
+R13      EQU   13                                                 @   @
+R14      EQU   14                                                 @   @
+R15      EQU   15                                                 @   @
+******************************************************************@   @
+*        EQU VETORIAL REGISTERS                                   @   @
+******************************************************************@   @
+VR16     EQU   16                                                 @   @
+VR16D    EQU   2048                                               @   @
+VR18     EQU   18                                                 @   @
+VR18D    EQU   2176                                               @   @
+VR19     EQU   19                                                 @   @
+VR19D    EQU   2304                                               @   @
+VR20     EQU   20                                                 @   @
+VR20D    EQU   2432                                               @   @
+VR21     EQU   21                                                 @   @
+VR21D    EQU   2560                                               @   @
+VR22     EQU   22                                                 @   @
+VR22D    EQU   2688                                               @   @
+VR23     EQU   23                                                 @   @
+VR23D    EQU   2816                                               @   @
+         END   TESTSON                                            @   @

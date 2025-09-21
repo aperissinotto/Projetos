@@ -1,0 +1,50 @@
+//PCMPASMB PROC MEMBER=,                                                rio)
+//      ASMPARM='OBJECT,GOFF,XREF(FULL),LIST(133),RENT',                LASM
+//      LNKPARM='MAP,LIST,LET,XREF,RENT'
+//*================================================================*
+//* PROCEDURE: Compile Task-Related User Exit (TRUE)               *
+//* AUTHOR:    alexandre perissinotto do amaral                    *
+//* PURPOSE:   Compilar e link-editar TRUE em Assembler            *
+//* USAGE:     //step EXEC TRUECMP,MEM=nome,SRCLIB=dsn,LOADLIB=dsn *
+//*================================================================*
+//* STEP 1: ASSEMBLY (HLASM)                                       *
+//*================================================================*
+//ASM      EXEC PGM=ASMA90,REGION=0M,
+//         PARM='&ASMPARM'
+//*
+//SYSLIB   DD DISP=SHR,DSN=SYS1.MACLIB
+//         DD DISP=SHR,DSN=SYS1.MODGEN
+//         DD DISP=SHR,DSN=TCPIP.SEZACMAC
+//         DD DISP=SHR,DSN=CEE.SCEEMAC
+//         DD DISP=SHR,DSN=DEV.TCPPULSE.MACLIB
+//         DD DISP=SHR,DSN=DEV.TCPPULSE.COPY
+//*
+//SYSIN    DD DISP=SHR,DSN=DEV.TCPPULSE.SRC(&MEMBER)
+//*
+//SYSLIN   DD DISP=(NEW,PASS),DSN=&&OBJECT,
+//         UNIT=SYSALLDA,SPACE=(CYL,(1,1))
+//*
+//SYSPRINT DD SYSOUT=*
+//*
+//SYSUT1   DD SPACE=(4096,(20,20)),UNIT=SYSALLDA
+//SYSUT2   DD SPACE=(4096,(20,20)),UNIT=SYSALLDA
+//SYSUT3   DD SPACE=(4096,(20,20)),UNIT=SYSALLDA
+//*================================================================*
+//* STEP 2: LINK-EDIT (BINDER)                                     *
+//*================================================================*
+//LKED     EXEC PGM=IEWL,REGION=0M,COND=(7,LT,ASM),
+//         PARM='&LNKPARM'
+//*
+//SYSLIB   DD DISP=SHR,DSN=CEE.SCEELKED
+//         DD DISP=SHR,DSN=SYS1.CSSLIB
+//         DD DISP=SHR,DSN=TCPIP.SEZATCP
+//         DD DISP=SHR,DSN=DEV.TCPPULSE.LOAD
+//*
+//SYSLMOD  DD DISP=SHR,DSN=DEV.TCPPULSE.LOAD(&MEMBER)
+//*
+//SYSUT1   DD SPACE=(1024,(50,20)),UNIT=SYSALLDA
+//*
+//SYSPRINT DD SYSOUT=*
+//*
+//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&OBJECT
+//         DD DDNAME=SYSIN

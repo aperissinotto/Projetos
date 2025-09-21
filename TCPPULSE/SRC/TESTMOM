@@ -1,0 +1,154 @@
+TESTMOM  RSECT ,                                                  @   @
+TESTMOM  AMODE 31                                                 @   @
+TESTMOM  RMODE ANY                                                @   @
+         SYSSTATE ARCHLVL=6                                       @   @
+         IEABRCX DEFINE                                           @   @
+******************************************************************@   @
+         STM   R14,R12,12(R13)                                    @   @
+         LR    R3,R13                                             @   @
+         LARL  R11,TSTMOML                                        @   @
+         USING TSTMOML,R11                                        @   @
+******************************************************************@   @
+*        OBTAIN MEMORY FOR WORKAREA                               @   @
+******************************************************************@   @
+         STORAGE OBTAIN,                                          @   @X
+               LENGTH=LWORKNG,                                    @   @X
+               ADDR=(R13),                                        @   @X
+               LINKAGE=SYSTEM,                                    @   @X
+               RTCD=(R15),                                        @   @X
+               COND=YES                                           @   @
+*                                                                 @   @
+         LTR   R15,R15              * ALLRIGHT?                   @   @
+         JNZ   TSM9999              * NO, END                     @   @
+*                                                                 @   @
+         USING WORKING,R13                                        @   @
+         ST    R13,8(,R3)                                         @   @
+         ST    R3,4(,R13)                                         @   @
+******************************************************************@   @
+*        INITIALIZE WORKAREAS                                     @   @
+******************************************************************@   @
+         MVC   WWTO(LLWTO),LWTO                                   @   @
+******************************************************************@   @
+*        CALL BPX1PTC                                             @   @
+******************************************************************@   @
+         MVC   WPTCIRA,LTESTSON * SET INIT_RTN_ADDR               @   @
+         MVC   WPTCWAA,=A(0)   * SET WORK_AREA_ADDR               @   @
+         MVC   WPTCAAA,=A(0)   * SET ATTRIBUTE_AREA_ADDR          @   @
+         XC    WPTCTID,WPTCTID * CLEAN THREAD_ID                  @   @
+         XC    WBPXCRV,WBPXCRV * CLEAN RETURN_VALUE               @   @
+         XC    WBPXCRC,WBPXCRC * CLEAN RETURN_CODE                @   @
+         XC    WBPXCRS,WBPXCRS * CLEAN REASON_CODE                @   @
+*                                                                 @   @
+         LA    R1,WPARMBPX     * PARMLIST                         @   @
+         LA    R14,WPTCIRA     * OFFSET 0                         @   @
+         LA    R15,WPTCWAA     * OFFSET 4                         @   @
+         LA    R0,WPTCAAA      * OFFSET 8                         @   @
+         STM   R14,R0,0(R1)    * SAVE ON PARMLIST                 @   @
+*                                                                 @   @
+         LA    R14,WPTCTID     * OFFSET 12                        @   @
+         LA    R15,WBPXCRV     * OFFSET 16                        @   @
+         LA    R0,WBPXCRC      * OFFSET 20                        @   @
+         STM   R14,R0,12(R1)   * SAVE ON PARMLIST                 @   @
+*                                                                 @   @
+         LA    R14,WBPXCRS     * OFFSET 24                        @   @
+         XR    R15,R15         * OFFSET 28                        @   @
+         XR    R0,R0           * OFFSET 32                        @   @
+         STM   R14,R0,24(R1)   * SAVE ON PARMLIST                 @   @
+         OI    24(R1),X'80'    * SET LAST PARM                    @   @
+*                                                                 @   @
+BPX1PTC  MCALBPX BPX1PTC                                          @   @
+         LT    R15,WBPXCRV     * GET RETURN_VALUE                 @   @
+         BC    4,TSM9999       * NOT ALLRIGHT, END                @   @
+*                                                                 @   @
+         MVC   WSLPSEC,=F'15'  * SET SECONDS                      @   @
+         LA    R1,WPARMBPX     * PARMLIST                         @   @
+         LA    R14,WSLPSEC     * OFFSET 0                         @   @
+         LA    R15,WBPXCRV     * OFFSET 4                         @   @
+         XR    R0,R0           * OFFSET 8                         @   @
+         STM   R14,R0,0(R1)    * SAVE ON PARMLIST                 @   @
+         OI    4(R1),X'80'     * SET LAST PARM                    @   @
+*                                                                 @   @
+BPX1SLP  MCALBPX BPX1SLP                                          @   @
+         LT    R15,WBPXCRV     * GET RETURN_VALUE                 @   @
+         BC    4,TSM9999       * NOT ALLRIGHT, END                @   @
+*                                                                 @   @
+         XR    R15,R15                                            @   @
+TSM9999  DS   0H                                                  @   @
+         L     R13,4(,R13)                                        @   @
+         L     R14,12(,R13)                                       @   @
+         LM    R0,R12,20(R13)                                     @   @
+         BSM   0,R14                                              @   @
+******************************************************************@   @
+*        LITERALS                                                 @   @
+******************************************************************@   @
+TSTMOML  DS   0D                                                  @   @
+         LTORG ,                                                  @   @
+LTESTSON DC    V(TESTSON)                                         @   @
+LWTO     WTO   TEXT=,MF=L                                         @   @
+LLWTO    EQU   *-LWTO                                             @   @
+******************************************************************@   @
+*        WORKING STORAGE                                          @   @
+******************************************************************@   @
+WORKING  DSECT ,                                                  @   @
+         IHASAVER DSECT=NO                                        @   @
+WWTO     DS    XL(LLWTO)                                          @   @
+* BPX1SLP -> PARMS                                                @   @
+WSLPSEC  DS    F               * SECONDS                          @   @
+* BPX1PTC -> PARMS                                                @   @
+WPTCIRA  DS    A               * INIT_RTN_ADDR                    @   @
+WPTCWAA  DS    A               * WORK_AREA_ADDR                   @   @
+WPTCAAA  DS    A               * ATTRIBUTE_AREA_ADDR              @   @
+WPTCTID  DS    CL8             * THREAD_ID                        @   @
+* BPX -> COMMOM PARMS                                             @   @
+WPARMBPX DS  21A                                                  @   @
+WBPXCRV  DS    F               * RETURN_VALUE                     @   @
+WBPXCRC  DS    F               * RETURN_CODE                      @   @
+WBPXCRS  DS    F               * REASON_CODE                      @   @
+WFULL    DS    F                                                  @   @
+         DS    X                                                  @   @
+WDOUBLE  DS    FD                                                 @   @
+         DS    X                                                  @   @
+WHALF    DS    H                                                  @   @
+         DS    X                                                  @   @
+LWORKNG  EQU   *-WORKING                                          @   @
+******************************************************************@   @
+*        EQU USS SERVICES                                         @   @
+******************************************************************@   @
+         COPY  BPXOFST                                            @   @
+******************************************************************@   @
+*        EQU GENERAL REGISTERS                                    @   @
+******************************************************************@   @
+R0       EQU   0                                                  @   @
+R1       EQU   1                                                  @   @
+R2       EQU   2                                                  @   @
+R3       EQU   3                                                  @   @
+R4       EQU   4                                                  @   @
+R5       EQU   5                                                  @   @
+R6       EQU   6                                                  @   @
+R7       EQU   7                                                  @   @
+R8       EQU   8                                                  @   @
+R9       EQU   9                                                  @   @
+R10      EQU   10                                                 @   @
+R11      EQU   11                                                 @   @
+R12      EQU   12                                                 @   @
+R13      EQU   13                                                 @   @
+R14      EQU   14                                                 @   @
+R15      EQU   15                                                 @   @
+******************************************************************@   @
+*        EQU VETORIAL REGISTERS                                   @   @
+******************************************************************@   @
+VR16     EQU   16                                                 @   @
+VR16D    EQU   2048                                               @   @
+VR18     EQU   18                                                 @   @
+VR18D    EQU   2176                                               @   @
+VR19     EQU   19                                                 @   @
+VR19D    EQU   2304                                               @   @
+VR20     EQU   20                                                 @   @
+VR20D    EQU   2432                                               @   @
+VR21     EQU   21                                                 @   @
+VR21D    EQU   2560                                               @   @
+VR22     EQU   22                                                 @   @
+VR22D    EQU   2688                                               @   @
+VR23     EQU   23                                                 @   @
+VR23D    EQU   2816                                               @   @
+         END   TESTMOM                                            @   @

@@ -1,0 +1,8 @@
+         MACRO                                                          00010000
+&NAME    MCALBPX &OFST                                                  00011010
+         L     R15,16(,0)         .* CVT - COMMON VECTOR TABLE          00020003
+         L     R15,544(,R15)      .* CSRTABLE                           00030003
+         L     R15,24(,R15)       .* CSR SLOT                           00040003
+         L     R15,&OFST.(,R15)   .* ADDRESS OF THE SERVICE             00050009
+         BASR  R14,R15            .* CALL HIM                           00060003
+         MEND                                                           00070003
